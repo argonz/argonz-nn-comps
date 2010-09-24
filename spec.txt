@@ -1,0 +1,110 @@
+
+Neural Net Framework
+
+What I want to accomplish with this
+
+1. Creation of a net from a set of inputs
+nodes X cons X input-syms X output-syms -> states0 X update-f
+
+
+
+2. The components 
+
+Everything is a component. It has:
+- dependencies (to other nodes)
+- typ (this is information for building the network)
+from the typ, the network knows how to build it's activation function or how it will be used..
+also from the typ, that is it needs a reference to previous state or not.. (or previous states? :O)
+
+
+COMPONENTS for building a normal neural network
+field which every component has:
+- id 
+- typ
+- deps 
+
+2 TYPES OF COMPONENTS
+  1. actuator components
+     1. node
+     	- has an activation function af: deps -> z
+	- usually has links to previous states so ends up in a upd-f
+     	- for these an upd-f: env X zs -> z   function created according to it's type..
+     2. export
+     	- will define a value to the export hash
+
+  2. sensor components
+     1. constant
+     	- used for adding a parameters (like w, bias, mean, variance ..)
+	- they will manifest in an upd-f, or export-f
+     2. prev-state
+     	- reference 
+	- manifest in an upd-f or export-f
+     3. import
+     	- will get a value from the added enviroment..
+
+For every state-typ there is a corresponding function which is 
+f: c X cs -> state-upd-f   (so creates the state update function..)
+
+
+this seems a lot =D ... it's really like a lot .. =D
+
+
+THE DESIGN OF THE FRAMEWORK
+
+components - every one described..
+
+building - to build a net from the components..
+infs -> graph-rep
+tree-rep -> sym-graph-rep
+sym-graph-rep -> let-code-clause
+sym-graph-rep -> zs-next clause
+sym-graph-rep -> env-next clause
+sym-graph-rep -> upd-f whole clause ... 
+
+infs -> zs0 X upd-f
+
+mutation - (this is a bit confusing.. )
+c X cs X i -> c X cs X i          (where i is an id counter..)
+
+THE CREATING OF A NET UPDATE FUNCTION
+
+the update function, how the framework works..
+upd-f: env X zs -> env X zs   (so using the env function we maps into a new state :))
+
+in the net there is a flow of information
+1. evaluate the new states
+   - (every state node has a env X zs -> z function)
+   - should use an array for the states.. (states are numerical values by the way.. :O)
+2. export (so create the new enviroment - this are hash tables essentially..)
+
+
+creating the net func 
+create-f: comps -> zs0 X upd-f
+
+
+
+THE PROCESS OF COMPILING AN UPD etc function:
+1. infs -> build a graph (where the dependencies are set in the dep-edges!)
+2. symbolic function representation 
+   - inf -> [symbolname function-that-computes-that-symbolname]  (attached to the graph?? possible)
+   - identify before the prev-state-references  id -> state-vector-index  hash  - their value will be that
+3. from the endpoints build up the function ..
+   - EASIEST WAY: every node just added as [[sym clause] ..] in a sat-order 
+     (add only if all of the deps already presented..)
+     ALG:
+	- dep syms presented -> add [sym clause]  -  move up the tree
+	- dep syms not presented -> move down the tree, to an unpresented sym..
+
+
+
+
+
+
+SO THIS WOULD NEED:
+
+1. a graph library (with named edges support ..)
+2. a graph - node matching facility (if the matches I add this and this to the node :D) - hoo hoo.. where it's going to end - so it could be a baseline to the language?? :O
+3. if there is a dependency graph -> create a real function from it..
+   (this would be an abstract syntax tree step-by-step translation?? - so I just change parts of the tree step-by-step while I don't recreive a normal/parsed code tree?? - that could be an option :O  (but would be difficult, because I add the functions in normal way??? - I add them that way??? :O))
+
+So a lots of came up :O -> graph library, with an intention to end up, in the stuff.. :O)
